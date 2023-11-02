@@ -1,6 +1,12 @@
 <meta>
-	<script src="debugging.lua" type="client"/>
+	<info type="script"
+	name="rangeSystem"
+	description="library that uses creates optimal colshape-like elements inspired by getElementsWithinRange"
+	author="httpRick"
+	version="1.0" />
+
 	<script src="sourceG.lua" type="shared"/>
+	
 	<export function="createRange" type="shared"/>
 	<export function="attach" type="shared"/>
 	<export function="detach" type="shared"/>
