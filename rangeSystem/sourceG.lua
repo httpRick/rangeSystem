@@ -11,7 +11,7 @@
 
 --------------------------------------------------- CONFIG ----------------------------------------------------
 local ENABLE_DEBUG = true
-local DETECT_ELEMENT_TYPES = {"player"}
+local DETECT_ELEMENT_TYPES = {"player", "ped", "vehicle", "object", "pickup", "marker"}
 ---------------------------------------------------------------------------------------------------------------
 
 local ranges = {}
