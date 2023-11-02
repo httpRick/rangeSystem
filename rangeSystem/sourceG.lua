@@ -67,7 +67,7 @@ if ENABLE_DEBUG then
 			else
 				removeEventHandler("onClientRender", root, onClientRenderRange)
 			end
-			outputConsole("Ranges: "..(showRanges and "#00ff00on" or "#ffff00off"), 255, 194, 14, true)
+			outputChatBox("Ranges: "..(showRanges and "#00ff00on" or "#ffff00off"), 255, 194, 14, true)
 		end
 		addCommandHandler(COMMAND_DEBUG, togShowRanges)
 	end
