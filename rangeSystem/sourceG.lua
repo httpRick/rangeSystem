@@ -11,6 +11,7 @@
 
 --------------------------------------------------- CONFIG ----------------------------------------------------
 local ENABLE_DEBUG = true
+local COMMAND_DEBUG = "showranges"
 local DETECT_ELEMENT_TYPES = {"player", "ped", "vehicle", "object", "pickup", "marker"}
 ---------------------------------------------------------------------------------------------------------------
 
@@ -66,12 +67,9 @@ if ENABLE_DEBUG then
 			else
 				removeEventHandler("onClientRender", root, onClientRenderRange)
 			end
-			outputConsole("Show ranges: "..(showRanges and "on" or "off"))
+			outputConsole("Ranges: "..(showRanges and "#00ff00on" or "#ffff00off"), 255, 194, 14, true)
 		end
-		addCommandHandler("showranges", togShowRanges)
-
-		-- TEMP Auto enable
-		togShowRanges()
+		addCommandHandler(COMMAND_DEBUG, togShowRanges)
 	end
 end
 
