@@ -1,6 +1,6 @@
 <meta>
-	<script src="debugging.lua" type="client"/>
 	<script src="sourceG.lua" type="shared"/>
+	
 	<export function="createRange" type="shared"/>
 	<export function="attach" type="shared"/>
 	<export function="detach" type="shared"/>

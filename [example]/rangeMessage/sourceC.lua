@@ -5,11 +5,11 @@ function example_enter(theElement, matchingDimension, matchingInterior)
         outputChatBox("[Client] "..getPlayerName(theElement).." enter the range.")
     end
 end
-addEventHandler( "onClientRangeHit", rangeZone, example_enter)
+addEventHandler( "onClientRangeHit", rangeZone, example_enter, false)
 
 function example_leave(theElement, matchingDimension, matchingInterior)
     if getElementType(theElement) == "player" then
         outputChatBox("[Client] "..getPlayerName(theElement).." leave the range.")
     end
 end
-addEventHandler("onClientRangeLeave", rangeZone, example_leave)
+addEventHandler("onClientRangeLeave", rangeZone, example_leave, false)
