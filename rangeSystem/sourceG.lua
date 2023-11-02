@@ -22,6 +22,8 @@ local _getElementsWithinRange = getElementsWithinRange
 
 local syncRangesWithClients = function() end
 
+math.randomseed(os.time())
+
 addEvent(isClientFile and "onClientRangeHit" or "onRangeHit", true)
 addEvent(isClientFile and "onClientRangeLeave" or "onRangeLeave", true)
 
@@ -41,22 +43,29 @@ if ENABLE_DEBUG then
 		local showRanges = false
 
 		local function drawRange(rangeElement, v)
-			local x, y, z = v.x, v.y, v.z
-			local radius = v.radius
+			local x,y,z = getElementPosition(rangeElement)
 			if v.attach then
 				local x2, y2, z2 = getElementPosition(range.attach.element)
 				x, y, z = x2+range.attach.position.x, y2+range.attach.position.y, z2+range.attach.position.z
 			end
-			dxDrawWiredSphere(x, y, z, radius, v.color, 3.5, 1)
+			local radius = v.radius
+			local color = v.color
+			dxDrawWiredSphere(x, y, z, radius, color, 3.5, 1)
 		end
 
 		local function onClientRenderRange()
-			local x2, y2, z2 = getCameraMatrix()
+			local pdimension, pinterior = getElementDimension(localPlayer), getElementInterior(localPlayer)
 			for rangeElement, v in pairs(ranges) do
-				drawRange(rangeElement, v)
+				local dimension, interior = getElementDimension(rangeElement), getElementInterior(rangeElement)
+				if pdimension == dimension and pinterior == interior then
+					drawRange(rangeElement, v)
+				end
 			end
 			for rangeElement, v in pairs(syncedRanges) do
-				drawRange(rangeElement, v)
+				local dimension, interior = getElementDimension(rangeElement), getElementInterior(rangeElement)
+				if pdimension == dimension and pinterior == interior then
+					drawRange(rangeElement, v)
+				end
 			end
 		end
 
@@ -87,10 +96,16 @@ function setElementResource(element, theResource)
 end
 
 -- Exported
-function createRange(x, y, z, radius)
+function createRange(x, y, z, radius, dimension, interior, data)
 	local rangeElement = createElement("range")
 	setElementPosition(rangeElement, x, y, z)
-	ranges[rangeElement] = {x = x, y = y, z = z, radius = radius, elements = {}, color=tocolor(math.random(1,255)-1, math.random(1,255)-1, math.random(1,255)-1, 255)}
+	if dimension then
+		setElementDimension(rangeElement, dimension)
+	end
+	if interior then
+		setElementInterior(rangeElement, interior)
+	end
+	ranges[rangeElement] = {data = data, radius = radius, elements = {}, color=tocolor(math.random(1,255)-1, math.random(1,255)-1, math.random(1,255)-1, 255)}
 	setElementResource(rangeElement, sourceResource)
 	syncRangesWithClients()
 	return rangeElement
@@ -156,7 +171,6 @@ function detach(rangeElement, theElement)
 	if isElement(theElement) then
 		if ranges[rangeElement] and ranges[rangeElement].attach and ranges[rangeElement].attach.element == theElement then
 			local x, y, z = getElementPosition(theElement)
-			ranges[rangeElement].x, ranges[rangeElement].y, ranges[rangeElement].z = x, y, z
 			setElementPosition(rangeElement, x, y, z)
 			ranges[rangeElement].attach = nil
 			syncRangesWithClients()
@@ -182,7 +196,12 @@ function elementInRange(rangeElement, theElement)
 	if range and not range.elements[theElement] then
 		range.elements[theElement] = {result = true, element = theElement}
 		syncRangesWithClients()
-		triggerEvent(isClientFile and "onClientRangeHit" or "onRangeHit", rangeElement, theElement, getElementDimension(theElement) == getElementDimension(rangeElement), getElementInterior(theElement) == getElementInterior(rangeElement) )
+		triggerEvent(isClientFile and "onClientRangeHit" or "onRangeHit",
+			rangeElement, theElement,
+			getElementDimension(theElement) == getElementDimension(rangeElement),
+			getElementInterior(theElement) == getElementInterior(rangeElement),
+			range.data
+		)
 	end
 end
 
@@ -191,7 +210,12 @@ function elementOutRange(rangeElement, theElement)
 	if range and range.elements[theElement] then
 		range.elements[theElement] = nil
 		syncRangesWithClients()
-		triggerEvent(isClientFile and "onClientRangeLeave" or "onRangeLeave", rangeElement, theElement, getElementDimension(theElement) == getElementDimension(rangeElement), getElementInterior(theElement) == getElementInterior(rangeElement) )
+		triggerEvent(isClientFile and "onClientRangeLeave" or "onRangeLeave",
+		rangeElement, theElement,
+		getElementDimension(theElement) == getElementDimension(rangeElement),
+		getElementInterior(theElement) == getElementInterior(rangeElement),
+		range.data
+	)
 	end
 end
 
