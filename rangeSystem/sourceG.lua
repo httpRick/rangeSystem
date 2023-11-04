@@ -5,9 +5,6 @@
 --   Rick (https://github.com/httpRick)
 --   Nando (https://github.com/Fernando-A-Rocha)
 --
--- TODO:
---   Handle when range element gets destroyed
---   Handle when element that range is attached it gets destroyed
 
 --------------------------------------------------- CONFIG ----------------------------------------------------
 local ENABLE_DEBUG = true
@@ -45,8 +42,8 @@ if ENABLE_DEBUG then
 		local function drawRange(rangeElement, v)
 			local x,y,z = getElementPosition(rangeElement)
 			if v.attach then
-				local x2, y2, z2 = getElementPosition(range.attach.element)
-				x, y, z = x2+range.attach.position.x, y2+range.attach.position.y, z2+range.attach.position.z
+				local x2, y2, z2 = getElementPosition(v.attach.element)
+				x, y, z = x2+v.attach.position.x, y2+v.attach.position.y, z2+v.attach.position.z
 			end
 			local radius = v.radius
 			local color = v.color
@@ -62,9 +59,13 @@ if ENABLE_DEBUG then
 				end
 			end
 			for rangeElement, v in pairs(syncedRanges) do
-				local dimension, interior = getElementDimension(rangeElement), getElementInterior(rangeElement)
-				if pdimension == dimension and pinterior == interior then
-					drawRange(rangeElement, v)
+				if not isElement(rangeElement) then
+					syncedRanges[rangeElement] = nil
+				else
+					local dimension, interior = getElementDimension(rangeElement), getElementInterior(rangeElement)
+					if pdimension == dimension and pinterior == interior then
+						drawRange(rangeElement, v)
+					end
 				end
 			end
 		end
@@ -94,6 +95,31 @@ function setElementResource(element, theResource)
 		end
 	end
 end
+
+local function handleElementDestroyed()
+	local elementType = getElementType(source)
+	if elementType == "range" then
+		if ranges[source] then
+			ranges[source] = nil
+			syncRangesWithClients()
+		end
+		return
+	end
+	local isDetected = false
+	for _, name in ipairs(DETECT_ELEMENT_TYPES) do
+		if name == elementType then
+			isDetected = true
+			break
+		end
+	end
+	if isDetected then
+		local rangeElement = getElementRange(source)
+		if rangeElement then
+			elementOutRange(rangeElement, source)
+		end
+	end
+end
+addEventHandler("onElementDestroy", root, handleElementDestroyed)
 
 -- Exported
 function createRange(x, y, z, radius, dimension, interior, data)
