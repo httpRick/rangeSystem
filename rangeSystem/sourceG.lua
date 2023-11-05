@@ -42,8 +42,7 @@ if ENABLE_DEBUG then
 		local function drawRange(rangeElement, v)
 			local x,y,z = getElementPosition(rangeElement)
 			if v.attach then
-				local x2, y2, z2 = getElementPosition(v.attach.element)
-				x, y, z = x2+v.attach.position.x, y2+v.attach.position.y, z2+v.attach.position.z
+				x, y, z = getPositionFromElementOffset(v.attach.element, v.attach.position.x, v.attach.position.y, v.attach.position.z)
 			end
 			local radius = v.radius
 			local color = v.color
@@ -149,14 +148,21 @@ function getRangePosition(rangeElement)
 	local range = getRange(rangeElement)
 	if range then
 		if range.attach then
-			local x, y, z = getElementPosition(range.attach.element)
-			x, y, z = x+range.attach.position.x, y+range.attach.position.y, z+range.attach.position.z
+			local x, y, z = getPositionFromElementOffset(range.attach.element, range.attach.position.x, range.attach.position.y, range.attach.position.z)
 			return x, y, z
 		else
 			local x, y, z = getElementPosition(rangeElement)
 			return x, y, z
 		end
 	end
+end
+
+function getPositionFromElementOffset(element,offX,offY,offZ)
+    local m = getElementMatrix ( element )
+    local x = offX * m[1][1] + offY * m[2][1] + offZ * m[3][1] + m[4][1]
+    local y = offX * m[1][2] + offY * m[2][2] + offZ * m[3][2] + m[4][2]
+    local z = offX * m[1][3] + offY * m[2][3] + offZ * m[3][3] + m[4][3]
+    return x, y, z
 end
 
 -- Exported
